@@ -2,7 +2,7 @@
   "name": "5a8er-ir",
   "version": "0.1.0",
   "private": true,
-  "description": "Personal portfolio and landing page for Saber — 5a8er.ir",
+  "description": "Personal portfolio and landing page for Saber \u2014 5a8er.ir",
   "engines": {
     "node": ">=22.0.0"
   },
@@ -14,14 +14,16 @@
     "types:worker": "cd workers/router && wrangler types",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build:cf": "DEPLOY_TARGET=cloudflare opennextjs-cloudflare build",
+    "build:cf": "npm run build:posts && DEPLOY_TARGET=cloudflare opennextjs-cloudflare build",
     "preview:cf": "DEPLOY_TARGET=cloudflare opennextjs-cloudflare preview",
     "deploy:cf": "DEPLOY_TARGET=cloudflare opennextjs-cloudflare deploy",
-    "size:cf": "node scripts/worker-size.mjs"
+    "size:cf": "node scripts/worker-size.mjs",
+    "build:posts": "node scripts/build-posts.mjs",
+    "prebuild": "npm run build:posts"
   },
   "//pins": [
     "next and @opennextjs/cloudflare are pinned exactly, not caret-ranged.",
-    "OpenNext 1.20.2 declares next '>=15.5.21 <16 || >=16.2.11' — a narrow",
+    "OpenNext 1.20.2 declares next '>=15.5.21 <16 || >=16.2.11' \u2014 a narrow",
     "window that a routine minor bump falls straight out of. Bump both",
     "together, deliberately, and re-run `npm run build:cf && npm run size:cf`.",
     "",
@@ -39,11 +41,15 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@markdoc/markdoc": "^0.5.8",
     "@opennextjs/cloudflare": "1.20.2",
     "@tailwindcss/postcss": "^4.3.3",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.10.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "js-yaml": "^4.1.0",
+    "shiki": "^4.3.1",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.7.2",
     "vitest": "^4.1.10",

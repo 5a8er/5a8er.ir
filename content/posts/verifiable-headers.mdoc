@@ -1,0 +1,65 @@
+---
+title: A portfolio should be checkable, not just readable
+slug: verifiable-headers
+summary: >-
+  Why this site renders its own response headers in the hero, and what breaks
+  if you try to serve a strict CSP from two different runtimes at once.
+publishedAt: 2026-07-29
+tags:
+  - security
+  - infrastructure
+draft: false
+---
+
+Most engineering portfolios ask you to take their word for it. A line saying
+"security-focused" costs nothing to write and cannot be checked, which is
+roughly what it is worth.
+
+So this site tries a different arrangement: every claim it makes about itself
+should be verifiable with a command you already have installed.
+
+## The hero is a receipt
+
+The panel beside the headline is not a mockup of a terminal. It renders from
+the same `SECURITY_HEADERS` constant the server actually sends, which means it
+cannot drift — weakening the policy weakens the panel in the same commit.
+
+```bash
+curl -sI https://5a8er.ir | grep -i content-security-policy
+```
+
+If that output disagrees with what the page shows, the page is wrong, and
+that is a bug worth reporting.
+
+## The part that was actually hard
+
+The site runs on two origins: a Cloudflare Worker and a Vercel deployment,
+both from the same commit, with a small Worker at the apex failing over
+between them. That constraint is more demanding than it sounds, because the
+two are not the same runtime.
+
+The rule it forces is simple to state and easy to violate: **no origin-local
+state, and no filesystem at request time.**
+
+Rate limiting is the clearest case. A counter in process memory looks
+perfectly correct in local testing and is worthless in production here — an
+attacker alternating between the two origins gets exactly double the quota,
+for free, without doing anything clever. The limiter has to live somewhere
+both origins can see.
+
+The blog you are reading hits the same wall from a different angle. A content
+reader that walks a directory works fine on Vercel and fails on Workers, which
+have no filesystem at all. Posts are therefore compiled into a plain module at
+build time, so rendering one is an array lookup rather than a file read.
+
+## What it costs
+
+A content security policy with a per-request nonce cannot be served from
+cached HTML, because the nonce has to be different every time. That is a real
+cost and it is worth naming rather than hiding: pages render on demand instead
+of being served as static files.
+
+The alternative was `script-src 'unsafe-inline'`, which is the single most
+screenshot-able contradiction a site arguing for application security could
+ship. Static assets still cache immutably, and the render happens at an edge
+location in single-digit milliseconds. It was not a close call.

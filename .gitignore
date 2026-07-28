@@ -31,3 +31,4 @@ coverage/
 # `npm run types:worker`. Derived output, so it is regenerated rather than
 # committed — see README.
 workers/router/worker-configuration.d.ts
+src/content/generated/
