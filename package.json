@@ -31,6 +31,8 @@
     "was chosen over 4.115.0, which was 3 hours old at the time of writing."
   ],
   "dependencies": {
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
     "next": "16.2.11",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

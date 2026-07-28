@@ -1,3 +1,4 @@
+import { headers } from 'next/headers'
 import { Section } from '@/components/ui/Section'
 import { ContactForm } from '@/components/ui/ContactForm'
 import { CONTACT_EMAIL, SOCIALS } from '@/content/socials'
@@ -10,8 +11,17 @@ import { CONTACT_EMAIL, SOCIALS } from '@/content/socials'
  * message is rate limited, not logged, and not fed to an analytics vendor does
  * more for trust than the word "secure" appearing anywhere else on the site.
  */
-export function Contact() {
+export async function Contact() {
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+
+  /*
+   * Under `strict-dynamic`, the `https://challenges.cloudflare.com` entry in
+   * `script-src` is ignored by any browser that understands the keyword —
+   * trust propagates from nonce'd scripts instead. So the Turnstile loader
+   * needs the nonce, or it is blocked on exactly the browsers the strict
+   * policy was written for.
+   */
+  const nonce = (await headers()).get('x-nonce') ?? undefined
 
   return (
     <Section
@@ -22,6 +32,23 @@ export function Contact() {
     >
       <div className="grid gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:gap-16">
         <div>
+          {/*
+            No `integrity` attribute, deliberately. Cloudflare ships this file
+            continuously and publishes no stable hash for it, so pinning one
+            would break the widget on their next release rather than protect
+            anything. It is the only third-party script on the site; the CSP
+            keeps it from reaching anywhere it should not, and nothing on the
+            page depends on it except the spam check itself.
+          */}
+          {turnstileSiteKey ? (
+            <script
+              src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+              nonce={nonce}
+              async
+              defer
+            />
+          ) : null}
+
           <ContactForm turnstileSiteKey={turnstileSiteKey} />
 
           {/*
