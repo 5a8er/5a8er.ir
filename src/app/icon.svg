@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Saber">
+  <!--
+    The tilde from the ~/saber wordmark, on its own.
+    A letter mark would be illegible at 16px and a shield would say "security"
+    the way every other security site does. This is the one glyph from the
+    site's own identity that survives being that small.
+  -->
+  <rect width="32" height="32" rx="7" fill="#1a1a1a" />
+  <path
+    d="M6 18c2.4-5.6 7.2-5.6 10 0s7.6 5.6 10 0"
+    fill="none"
+    stroke="#4a90e2"
+    stroke-width="3.2"
+    stroke-linecap="round"
+  />
+</svg>

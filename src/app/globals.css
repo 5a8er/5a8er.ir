@@ -141,6 +141,41 @@
   }
 
   /*
+   * Hero backdrop.
+   *
+   * The grid is the page's own column rhythm made faintly visible, not a
+   * decorative texture dropped behind the text — which is why it is measured
+   * in the same units the layout uses. It fades out radially so it never
+   * competes with the response panel, and it is the only ambient element on
+   * the page.
+   */
+  .hero-grid::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      repeating-linear-gradient(
+        to right,
+        var(--border) 0 1px,
+        transparent 1px 6rem
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        var(--border) 0 1px,
+        transparent 1px 6rem
+      );
+    /*
+     * The fade has to run the full width and reach zero well inside the
+     * section. A tighter ellipse leaves a visible boundary where the mask
+     * ends, which reads as a rendering artifact rather than a decision.
+     */
+    -webkit-mask-image: radial-gradient(120% 90% at 50% -10%, #000 0%, transparent 70%);
+    mask-image: radial-gradient(120% 90% at 50% -10%, #000 0%, transparent 70%);
+    opacity: 0.6;
+  }
+
+  /*
    * Theme-toggle icon visibility.
    *
    * Written out longhand rather than via the `dark:` variant because the
