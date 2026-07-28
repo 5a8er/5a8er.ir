@@ -1,0 +1,140 @@
+@import 'tailwindcss';
+
+/*
+ * Dark mode is driven by `data-theme` on <html>, not by the media query alone,
+ * so an explicit user choice can override the system preference.
+ *
+ * Every token is declared once with `light-dark()`. Flipping `color-scheme`
+ * re-resolves all of them at once, which means no duplicated dark block to
+ * drift out of sync — and native controls, scrollbars, and form widgets follow
+ * the theme for free.
+ */
+:root {
+  color-scheme: light dark;
+
+  /* Surfaces */
+  --bg: light-dark(#f5f5f5, #1a1a1a);
+  --bg-surface: light-dark(#ffffff, #212121);
+  --bg-inset: light-dark(#ebebeb, #121212);
+
+  /* Text — every value below is verified against WCAG 2.1 AA on its own
+     background. See docs/superpowers/specs for the contrast table. */
+  --fg: light-dark(#1a1a1a, #f5f5f5); /* 15.9:1 both themes */
+  --fg-muted: light-dark(#5a5a5a, #9a9a9a); /* 5.86:1 / 6.18:1 */
+  --fg-subtle: light-dark(#6e6e6e, #8a8a8a); /* 4.68:1 / 5.04:1 */
+
+  /*
+   * The brief's #4a90e2 measures 3.02:1 on #f5f5f5 — it fails AA for body
+   * text. It is correct on #1a1a1a (5.29:1) and correct in either theme for
+   * borders, focus rings, and large display type (3:1 threshold).
+   *
+   * So the accent is a two-stop token: #4a90e2 remains the brand colour and
+   * the full dark-mode accent; light mode uses #1c6dc7 (4.74:1) wherever the
+   * accent carries text. Same identity, actually readable.
+   */
+  --accent: light-dark(#1c6dc7, #4a90e2);
+  --accent-hover: light-dark(#17589f, #6ba6e8);
+  --accent-edge: #4a90e2; /* decorative only: borders, grid lines, glow */
+
+  /* Lines */
+  --border: light-dark(#dcdcdc, #2e2e2e);
+  --border-strong: light-dark(#c4c4c4, #3d3d3d);
+
+  /* Layout */
+  --measure: 68ch;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --section-y: clamp(4rem, 10vw, 7.5rem);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* Escape hatch for the rare rule that can't be expressed as a token. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--bg-surface);
+  --color-inset: var(--bg-inset);
+
+  --color-fg: var(--fg);
+  --color-muted: var(--fg-muted);
+  --color-subtle: var(--fg-subtle);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-edge: var(--accent-edge);
+
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, 'Cascadia Code', monospace;
+}
+
+@layer base {
+  * {
+    min-inline-size: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Anchored sections must not slide under the sticky header. */
+    scroll-padding-block-start: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /*
+   * `:focus-visible` only — a mouse click should not paint a ring, but every
+   * keyboard path must. The accent token is >= 4.5:1 in both themes, well
+   * clear of the 3:1 non-text minimum.
+   */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--accent-edge) 30%, transparent);
+    color: var(--fg);
+  }
+
+  :where(h1, h2, h3, h4) {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+
+  :where(p, li) {
+    text-wrap: pretty;
+  }
+
+  /* Honour the OS setting rather than animating regardless. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

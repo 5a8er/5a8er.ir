@@ -1,0 +1,27 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "5a8er-router",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-01",
+  "observability": {
+    "enabled": true
+  },
+  // The apex and www both enter here. cf.5a8er.ir deliberately does NOT, or
+  // the Worker would route to itself.
+  "routes": [
+    { "pattern": "5a8er.ir", "custom_domain": true },
+    { "pattern": "www.5a8er.ir", "custom_domain": true }
+  ],
+  // A service binding reaches the OpenNext Worker inside Cloudflare's network
+  // rather than back out over the public internet: no extra TLS handshake, no
+  // second DNS lookup, and no chance of the request being routed to the apex
+  // again.
+  "services": [
+    { "binding": "SITE", "service": "5a8er-site" }
+  ],
+  "vars": {
+    "VERCEL_ORIGIN": "https://5a8er-ir.vercel.app",
+    "PUBLIC_HOST": "5a8er.ir",
+    "PRIMARY_TIMEOUT_MS": "3000"
+  }
+}

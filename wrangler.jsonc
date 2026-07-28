@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "5a8er-site",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  // The apex is served by the router Worker in workers/router, which fails
+  // over to Vercel. This Worker is one of its two origins and is reached at a
+  // dedicated hostname so the router can address it without a routing loop.
+  "routes": [
+    {
+      "pattern": "cf.5a8er.ir",
+      "custom_domain": true
+    }
+  ],
+  "vars": {
+    "DEPLOY_TARGET": "cloudflare",
+    "ORIGIN_NAME": "cf"
+  }
+}

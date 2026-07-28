@@ -1,0 +1,33 @@
+node_modules/
+.next/
+.open-next/
+.wrangler/
+out/
+build/
+dist/
+
+.env
+.env.local
+.env*.local
+
+# Your global excludes file (~/.config/git/ignore) carries a broad `.env.*`
+# rule, which is a good default but also catches the template. A repo-level
+# negation wins over the global file, so the example stays tracked without
+# weakening anything.
+!.env.example
+
+*.tsbuildinfo
+next-env.d.ts
+
+.DS_Store
+*.log
+npm-debug.log*
+
+coverage/
+.vercel/
+.vitest/
+
+# Generated from wrangler.jsonc + the installed wrangler version by
+# `npm run types:worker`. Derived output, so it is regenerated rather than
+# committed — see README.
+workers/router/worker-configuration.d.ts

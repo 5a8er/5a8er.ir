@@ -1,0 +1,50 @@
+{
+  "name": "5a8er-ir",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Personal portfolio and landing page for Saber — 5a8er.ir",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p workers/router",
+    "types:worker": "cd workers/router && wrangler types",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build:cf": "DEPLOY_TARGET=cloudflare opennextjs-cloudflare build",
+    "preview:cf": "DEPLOY_TARGET=cloudflare opennextjs-cloudflare preview",
+    "deploy:cf": "DEPLOY_TARGET=cloudflare opennextjs-cloudflare deploy",
+    "size:cf": "node scripts/worker-size.mjs"
+  },
+  "//pins": [
+    "next and @opennextjs/cloudflare are pinned exactly, not caret-ranged.",
+    "OpenNext 1.20.2 declares next '>=15.5.21 <16 || >=16.2.11' — a narrow",
+    "window that a routine minor bump falls straight out of. Bump both",
+    "together, deliberately, and re-run `npm run build:cf && npm run size:cf`.",
+    "",
+    "Versions were also age-checked against the 7-day floor in .npmrc:",
+    "next 16.2.11 (2026-07-21) is the newest release that is BOTH",
+    "OpenNext-compatible and older than 7 days. wrangler 4.112.0 (2026-07-17)",
+    "was chosen over 4.115.0, which was 3 hours old at the time of writing."
+  ],
+  "dependencies": {
+    "next": "16.2.11",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@opennextjs/cloudflare": "1.20.2",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.10",
+    "wrangler": "4.112.0"
+  }
+}
