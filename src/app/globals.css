@@ -54,8 +54,25 @@
   color-scheme: dark;
 }
 
-/* Escape hatch for the rare rule that can't be expressed as a token. */
-@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+/*
+ * Escape hatch for the rare rule that cannot be expressed as a token.
+ *
+ * This must track the *effective* theme, not just the attribute. A visitor on
+ * a system-dark machine who has never touched the toggle has no `data-theme`
+ * at all — `light-dark()` already renders them dark, so a `dark:` variant that
+ * only matched the attribute would silently disagree with every colour on the
+ * page.
+ */
+@custom-variant dark {
+  &:where([data-theme='dark'], [data-theme='dark'] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme='light']), :root:not([data-theme='light']) *) {
+      @slot;
+    }
+  }
+}
 
 @theme inline {
   --color-bg: var(--bg);
@@ -121,6 +138,44 @@
 
   :where(p, li) {
     text-wrap: pretty;
+  }
+
+  /*
+   * Theme-toggle icon visibility.
+   *
+   * Written out longhand rather than via the `dark:` variant because the
+   * ordering has to be unambiguous: an explicit `data-theme` must beat the
+   * media query in both directions, including when a visitor picks light on a
+   * system-dark machine.
+   */
+  .icon-when-dark {
+    display: none;
+  }
+
+  .icon-when-light {
+    display: block;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) .icon-when-dark {
+      display: block;
+    }
+    :root:not([data-theme='light']) .icon-when-light {
+      display: none;
+    }
+  }
+
+  :root[data-theme='dark'] .icon-when-dark {
+    display: block;
+  }
+  :root[data-theme='dark'] .icon-when-light {
+    display: none;
+  }
+  :root[data-theme='light'] .icon-when-dark {
+    display: none;
+  }
+  :root[data-theme='light'] .icon-when-light {
+    display: block;
   }
 
   /* Honour the OS setting rather than animating regardless. */
