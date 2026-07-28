@@ -18,9 +18,18 @@ import type { NextConfig } from 'next'
  * compiler — not routed, not bundled, not merely unreachable.
  */
 const isCloudflare = process.env.DEPLOY_TARGET === 'cloudflare'
+const isDocker = process.env.DEPLOY_TARGET === 'docker'
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+
+  /*
+   * Standalone output for the container image only: it traces the files the
+   * server actually reaches, so the runtime image carries no build toolchain
+   * and no dev dependencies. Vercel and OpenNext do their own tracing and
+   * would be confused by it.
+   */
+  ...(isDocker ? { output: 'standalone' as const } : {}),
 
   pageExtensions: isCloudflare
     ? ['tsx', 'ts']

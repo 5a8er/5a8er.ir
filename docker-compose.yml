@@ -1,0 +1,38 @@
+# Third origin, for when neither Cloudflare nor Vercel is the right answer.
+#
+# `docker compose up -d` on any VPS gives a working deployment; nothing here
+# depends on a managed platform.
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    # No published ports: nginx is the only thing that reaches the app, and
+    # the app is not addressable from outside the compose network.
+    expose:
+      - '3000'
+    environment:
+      ORIGIN_NAME: selfhosted
+      NEXT_PUBLIC_SITE_URL: https://5a8er.ir
+    env_file:
+      - .env
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/proxy_params.conf:/etc/nginx/proxy_params.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    security_opt:
+      - no-new-privileges:true
