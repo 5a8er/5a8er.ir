@@ -73,7 +73,20 @@ export function buildCsp({ nonce, admin = false }: CspOptions): string {
  * the browser default, which is usually "ask", not "no".
  */
 export const SECURITY_HEADERS: Readonly<Record<string, string>> = Object.freeze({
-  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+  /*
+   * One year, not two — this value is chosen to match what actually reaches
+   * the client, not what would look best.
+   *
+   * Cloudflare's zone-level HSTS setting REPLACES this header at the edge
+   * rather than passing it through, and its dashboard maxes out at 12 months.
+   * The first live deploy served `max-age=0` because the zone setting was off
+   * entirely, which meant the hero panel — which renders from this very
+   * constant — was advertising a policy the site was not sending.
+   *
+   * Keeping 63072000 here would leave the panel overstating by a year. If the
+   * zone setting changes, change this with it.
+   */
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'X-Frame-Options': 'DENY',
