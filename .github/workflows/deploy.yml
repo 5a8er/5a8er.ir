@@ -14,6 +14,9 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Lets a deploy be re-run without inventing a commit — useful when the code
+  # is fine and only a credential or DNS record has changed.
+  workflow_dispatch:
 
 concurrency:
   group: deploy-${{ github.ref }}
