@@ -1,88 +1,117 @@
 import type { Project } from './types'
 
 /**
- * ─── READ BEFORE PUBLISHING ────────────────────────────────────────────────
+ * Transcribed from the repositories, not drafted.
  *
- * These cards are drafted from the project brief, not transcribed from the
- * repositories. The engineering described is the standard shape of a correct
- * answer to each problem — which is exactly why it must be checked: anything
- * here that the real implementation does NOT do is a claim that will fall over
- * in an interview, and a security team will ask about every bullet under
- * "Security".
+ * Every stack entry, architecture line, and security bullet below was read out
+ * of the project's own README, docs, or package manifest. Where a repo states
+ * a control, it is quoted here in the repo's own terms so the two cannot
+ * disagree.
  *
- * Walk each card and either confirm the line or change it. Delete this comment
- * once that pass is done.
+ * All three repositories are currently PRIVATE, which is why no card carries a
+ * source link — a dead GitHub link costs more credibility than a missing one.
+ * If any is made public, add it to `links` on that card.
  *
- * Three cards, not four. A fabricated fourth project is worse than a shorter
- * list — every card is an invitation to be questioned in depth.
+ * Three cards, not four. Every card is an invitation to be questioned in
+ * depth, and the "Security" bullets are where that questioning starts.
  */
 export const PROJECTS: Project[] = [
   {
-    slug: 'crypto-commerce',
-    name: 'Crypto-wallet e-commerce platform',
+    slug: 'coinguard',
+    name: 'CoinGuard',
     status: 'building',
     featured: true,
-    summary: 'A storefront that settles in crypto without ever holding customer funds.',
+    summary:
+      'Django storefront selling hardware crypto wallets, built for buyers most payment rails will not serve.',
     problem:
-      'Card processing is closed to a lot of merchants, and a custodial gateway only trades that problem for counterparty risk. Settling on-chain instead means owning three awkward details: a price that moves between quote and payment, a confirmation that is probabilistic rather than final, and transfers that arrive late, twice, or short.',
+      'The product is itself a security device, and the buyers are largely people mainstream payment processors decline. That means supporting Stripe, PayPal, Zarinpal, and on-chain payment side by side — four rails with four different failure modes — while the storefront stays trustworthy enough that somebody will hand it a shipping address for the device that will hold their keys.',
     approach:
-      'Each order locks a quote against an address derived for that order alone, so a payment is attributable without the buyer holding an account. A watcher advances an explicit state machine on confirmation depth, and every transition is idempotent — a replayed notification is a no-op, not a second credit. The app server holds an extended public key and no signing capability.',
-    stack: ['Django', 'Django REST Framework', 'PostgreSQL', 'Redis', 'Celery', 'Next.js', 'Docker'],
+      'One order state machine sits behind every payment gateway, so adding a rail is an adapter rather than a second branch through checkout. The whole stack ships as containers behind Nginx, which terminates TLS with automatically renewed Let\'s Encrypt certificates, and separate dev and production compose files keep the two from drifting into each other.',
+    stack: [
+      'Django 4.2',
+      'PostgreSQL',
+      'Gunicorn',
+      'Tailwind CSS',
+      'Docker Compose',
+      'Nginx',
+      'Stripe / PayPal / Zarinpal',
+    ],
     architecture: [
-      'Chain watching runs as a separate worker; the request path never blocks on a node RPC call',
-      'Order state is append-only, so the current status is derived rather than overwritten and the history is auditable',
-      'Dockerised services behind Nginx, which terminates TLS — the application never speaks plaintext to the internet',
-      'Catalogue reads served from Redis with explicit invalidation on write, not a blind TTL',
+      'Nginx terminates TLS and serves static assets; Gunicorn runs the application behind it, never exposed directly',
+      'Separate dev and production compose files, so a local convenience cannot accidentally ship',
+      'Multiple payment gateways behind one checkout flow rather than one code path per provider',
+      'Automated deployment and monitoring scripts, so a release is repeatable rather than remembered',
     ],
     security: [
-      'Extended public key only on the app server: a full compromise of the web tier yields no ability to move funds',
-      'Payment notifications verified by signature and rejected outside a tolerated clock skew',
-      'Idempotency keys on every write endpoint, so a replayed confirmation cannot double-credit an order',
-      'Decimal arithmetic end to end — no float ever touches an amount or an exchange rate',
-      'Quote endpoint rate-limited per IP and per order to stop it being scraped as a free price oracle',
+      'CSRF protection on every state-changing form; sessions hardened rather than left at defaults',
+      'Parameterised queries throughout — no SQL assembled from strings',
+      'Uploads validated on the way in, since a storefront that accepts files accepts whatever it does not check',
+      'HSTS, X-Frame-Options, and X-Content-Type-Options set at the edge, with HTTP redirected to HTTPS',
+      'Payment details tokenised rather than stored; role-based access control on the admin surface',
+      'Security events audit-logged, so an incident has a record to read rather than a guess',
     ],
   },
   {
-    slug: 'marketplace',
-    name: 'Marketplace platform',
+    slug: 'trusthub',
+    name: 'TrustHub',
     status: 'building',
-    summary: 'Multi-party marketplace where every field is attacker-controlled by definition.',
+    summary:
+      'Multi-vendor marketplace across six service markets, where the thing actually being sold is trust.',
     problem:
-      'A marketplace has no trusted party. Every title, image, and message is one user\'s input rendered to another, and the question is never "is this person signed in" but "do they own this row". Get it wrong once and it stays silent until somebody enumerates an ID.',
+      'Providers list across VPN, VPS, domain, outbound, crypto, and Starlink markets, and buyers choose on verified badges and reviews. That makes authorisation the product rather than a feature of it: a provider must reach only their own listings, a review is worthless if it can be manufactured, and an admin route must not be reachable by guessing a URL.',
     approach:
-      'Ownership is enforced in the data-access layer, not in route guards, so a missed check fails closed instead of returning someone else\'s record. Input is validated against a schema shared with the client and rendered strictly as text. Catalogue pages are server-rendered, which keeps query construction off the client.',
-    stack: ['Next.js', 'TypeScript', 'PostgreSQL', 'Redis', 'Tailwind CSS', 'Docker'],
+      'Google OAuth is the only self-serve way in, and it grants at most the USER role — signing in can never award itself provider or admin. Password login exists solely for ADMIN, is restricted to that role in production, and is kept off the public navigation. TOTP two-factor sits on top, and a ban applies across both sign-in paths at once rather than closing one door.',
+    stack: [
+      'Next.js',
+      'TypeScript',
+      'Prisma',
+      'PostgreSQL',
+      'NextAuth',
+      'Upstash Redis',
+      'Zod',
+      'Stripe',
+      'Playwright',
+      'Docker',
+    ],
     architecture: [
-      'Server components for catalogue and listing pages; client components confined to filters and the composer',
-      'Uploads go straight to object storage through a signed URL constrained by size and content type, never through the app server',
-      'Search results cached in Redis with tag-based invalidation when a listing changes',
+      'Prisma schema is the single source of truth for roles, so the permission model lives in one file rather than scattered through handlers',
+      'Provider logos go to object storage, so uploaded files never sit on the application server',
+      'Catalogue browsable by provider or by location, server-rendered so it stays crawlable',
+      'Playwright end-to-end tests covering the authentication flows, which are the part most expensive to get wrong',
     ],
     security: [
-      'Object-level authorisation checked in the query layer, so a missing route guard cannot become an IDOR',
-      'All user text rendered as text — no raw HTML injection point anywhere in the component tree',
-      'Uploads validated by magic bytes as well as declared type, and served from a separate origin so a stored file cannot execute as same-origin script',
-      'Rate limits on listing creation and messaging, which is what actually makes spam uneconomic',
+      'OAuth grants at most USER — privilege escalation is not something a sign-in can perform',
+      'Admin credential login is production-restricted to ADMIN and absent from public navigation',
+      'Passwords bcrypt-hashed; TOTP two-factor available on top',
+      'Rate limiting in middleware across the auth POST routes, backed by Redis rather than process memory',
+      'A ban blocks both authentication providers, so closing one route does not leave the other open',
+      "/api/auth kept same-origin so the CSP's form-action 'self' posture survives the OAuth redirect",
     ],
   },
   {
-    slug: 'recon-tooling',
-    name: 'Recon and exposure tooling',
+    slug: 'azadrahinternet',
+    name: 'azadrahinternet',
     status: 'maintained',
-    summary: 'Personal tooling for attack-surface mapping and reproducible reporting.',
+    summary:
+      'Persian-language Telegram referral bot for a VPN channel: one Cloudflare Worker, no framework, no build step, no database.',
     problem:
-      'Recon output is high volume and low signal. The bottleneck is not discovering hosts — it is deciding which of several thousand deserves a human, and proving a finding weeks later when the target has already changed underneath you.',
+      'A referral system invites exactly one attack — counting the same person twice. Rejoins, several invite links, and members who leave and return all have to collapse into one number nobody can inflate. It also has to keep running for an audience whose network actively interferes with the infrastructure most services assume.',
     approach:
-      'Composable stages rather than one framework: enumerate from certificate transparency and DNS, normalise into one record shape, diff against the previous run, surface only what changed. Findings carry the exact request and response, so a report stays reproducible after the target moves on.',
-    stack: ['Python', 'asyncio', 'SQLite', 'Docker'],
+      'A single Worker with one fetch handler and Cloudflare KV as the only datastore. No framework, no build step, and nothing in the dependency tree to keep patched. Referrals are counted from Telegram\'s chat_member updates and deduplicated globally, so a given person counts once ever and a rejoin never recounts.',
+    stack: ['Cloudflare Workers', 'Cloudflare KV', 'Plain ES modules', 'Telegram Bot API', 'Wrangler'],
     architecture: [
-      'Every stage reads and writes the same normalised record, so stages compose without a bespoke adapter each time',
-      'Runs are immutable and timestamped, which turns "what changed since last week" into a query rather than a rescan',
-      'Concurrency bounded per target, because a scan that saturates a host is an outage you caused',
+      'One `export default { fetch }` entry point — no framework, no build step, no bundler to trust',
+      'Cloudflare KV holds configuration and referral state; there is no second datastore to keep consistent',
+      'Webhook-driven rather than polling, so the bot costs nothing while idle',
+      'Referral counting deduplicated globally rather than per invite link',
     ],
     security: [
-      'Scope is an allowlist loaded per run; anything outside it is dropped before a single request is made',
-      'Rate and concurrency ceilings enforced client-side rather than left for the target to absorb',
-      'Evidence stored locally, with credentials stripped before anything reaches a report',
+      'Secrets compared in constant time, never with `===`, for both the webhook token and the admin bearer',
+      'Header-based authentication only — `?secret=` query parameters are refused outright, since URLs end up in logs',
+      'Every user-controlled string HTML-escaped before it reaches a `parse_mode: HTML` message',
+      'Strict security headers on every response: CSP, HSTS, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`',
+      'Clients see a generic 401/404/500; the real detail goes to logs, so errors are not a reconnaissance tool',
+      'Length caps on every admin write, and per-IP rate limiting on the admin surface via the Workers binding',
     ],
   },
 ]

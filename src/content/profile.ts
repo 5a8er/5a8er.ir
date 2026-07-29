@@ -23,7 +23,7 @@ export const PROFILE = {
   bio: [
     'I build backend systems and then try to break them. Most of my work sits where application security meets infrastructure: the API that trusts a header it should not, the deployment that leaks an internal hostname, the authorisation check that lives in the route handler instead of the query.',
     'That perspective came from working both sides. Writing Django services taught me where the shortcuts are; looking for those same shortcuts in other people\'s systems taught me which ones actually get exploited. What survived is a bias toward designs that fail closed, and toward constraints that live in the schema rather than in a code review comment somebody will forget.',
-    'I am currently building two things: a storefront that settles in crypto without taking custody of customer funds, and a marketplace on Next.js where every field is attacker-controlled by definition. Both are the same question wearing different clothes — where is the trust boundary, and what happens the first time somebody crosses it.',
+    'Right now I am building two things: a storefront selling hardware wallets to buyers most payment processors decline, and a marketplace where providers across six service markets are ranked on verified reviews. Different products, one question underneath — who is allowed to do what, and what happens the first time somebody lies about it.',
   ],
 
   /** Rendered as a short labelled list beside the bio. */
