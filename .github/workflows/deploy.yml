@@ -69,7 +69,9 @@ jobs:
 
   deploy-cloudflare:
     needs: verify
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     outputs:
       deployed: ${{ steps.creds.outputs.configured }}
@@ -121,7 +123,9 @@ jobs:
 
   deploy-vercel:
     needs: verify
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     outputs:
       deployed: ${{ steps.creds.outputs.configured }}
@@ -165,9 +169,9 @@ jobs:
   # hence the output check rather than plain `needs`.
   verify-live:
     needs: [deploy-cloudflare, deploy-vercel]
-    if: |
+    if: >-
       github.ref == 'refs/heads/main' &&
-      github.event_name == 'push' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
       needs.deploy-cloudflare.outputs.deployed == 'true' &&
       needs.deploy-vercel.outputs.deployed == 'true'
     runs-on: ubuntu-latest
