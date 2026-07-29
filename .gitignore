@@ -6,14 +6,21 @@ out/
 build/
 dist/
 
-.env
-.env.local
-.env*.local
+# Every env file is ignored, including the VERCEL_OIDC_TOKEN that `vercel link`
+# writes into .env.local.
+.env*
 
-# Your global excludes file (~/.config/git/ignore) carries a broad `.env.*`
-# rule, which is a good default but also catches the template. A repo-level
-# negation wins over the global file, so the example stays tracked without
-# weakening anything.
+# ...except the template, which must stay tracked.
+#
+# This negation has to come AFTER `.env*`: gitignore applies the LAST matching
+# pattern, so a broad rule added below would silently re-ignore the example.
+# `vercel link` appended exactly such a rule at the end of this file, and the
+# only thing still protecting the template was that it was already tracked —
+# `git check-ignore --no-index .env.example` showed the latent bug.
+#
+# It also overrides the broad `.env.*` in the global excludes file
+# (~/.config/git/ignore), which is a good default that happens to catch
+# templates too.
 !.env.example
 
 *.tsbuildinfo
