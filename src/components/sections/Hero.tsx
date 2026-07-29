@@ -36,7 +36,7 @@ export function Hero() {
           <div className="mt-10 flex flex-wrap items-center gap-3">
             <Link
               href="#contact"
-              className="inline-flex h-11 items-center rounded-md bg-accent px-5 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
+              className="inline-flex h-11 items-center rounded-md bg-accent px-5 text-sm font-medium text-accent-on transition-colors hover:bg-accent-hover"
             >
               Get in touch
             </Link>

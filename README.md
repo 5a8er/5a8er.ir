@@ -116,15 +116,39 @@ Cloudflare caps a Worker script at 3 MiB gzipped on the free plan. `npm run
 size:cf` measures the real upload bundle via `wrangler deploy --dry-run` and
 exits non-zero if it is over.
 
-Last measured: **0.81 MiB, 27% of the free limit.**
+Last measured: **1.14 MiB, 38% of the free limit** — with the blog, the
+contact pipeline, and Keystatic's 206 packages all installed.
 
 Re-run it after adding any dependency that reaches the server.
+
+## Verification
+
+| Check | Result |
+|---|---|
+| Lighthouse accessibility | 100 |
+| Lighthouse best practices | 96 |
+| Lighthouse SEO | 66 locally — see below |
+| CSP violations at runtime | none |
+| Tests | 98 passing |
+| Worker bundle | 1.14 MiB, 38% of the free cap |
+
+The local SEO score is the site working as intended, not a defect. Non-canonical
+hosts are served `X-Robots-Tag: noindex`, so `cf.5a8er.ir` and the `*.vercel.app`
+origin cannot compete with the apex as duplicate content — and `127.0.0.1` is
+non-canonical too. Requesting with `X-Forwarded-Host: 5a8er.ir` returns no
+`X-Robots-Tag` at all.
+
+```bash
+npm test                    # unit tests
+./scripts/verify-headers.sh # header parity across origins
+npm run size:cf             # Worker budget
+```
 
 ## Security
 
 See [`SECURITY.md`](./SECURITY.md) for the full posture, the reporting process,
-and — more usefully — the two places the policy is knowingly weaker than it
-could be.
+the two places the policy is knowingly weaker than it could be, and one
+standard recommendation that was deliberately declined.
 
 ## Before deploying
 

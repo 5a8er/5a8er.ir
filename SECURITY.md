@@ -47,6 +47,20 @@ geolocation, payment, and USB.
 Verify with `scripts/verify-headers.sh`, which asserts the header set is
 identical across the apex and both origins.
 
+### A recommendation deliberately declined
+
+Lighthouse and Google's CSP Evaluator both suggest adding `'unsafe-inline'` to
+`script-src` for backward compatibility. The advice is technically sound: any
+browser that understands nonces ignores `'unsafe-inline'` entirely, so it
+weakens nothing modern and helps browsers old enough to ignore nonces.
+
+It is declined here anyway. The argument this site makes is that you can check
+its claims with `curl`, and a reader who greps the policy and finds
+`'unsafe-inline'` in `script-src` has to already know why it is inert before it
+reads as anything but a contradiction. The browsers it would help predate the
+audience. `https:` is already present as the fallback for browsers that ignore
+`'strict-dynamic'`, which covers the realistic range.
+
 ### Two things this does not do
 
 Stating them plainly is more useful than a policy that quietly overstates

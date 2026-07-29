@@ -184,7 +184,7 @@ export function ContactForm({ turnstileSiteKey }: { turnstileSiteKey?: string })
         <button
           type="submit"
           disabled={sending}
-          className="inline-flex h-11 items-center rounded-md bg-accent px-5 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-11 items-center rounded-md bg-accent px-5 text-sm font-medium text-accent-on transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
         >
           {sending ? 'Sending…' : 'Send message'}
         </button>

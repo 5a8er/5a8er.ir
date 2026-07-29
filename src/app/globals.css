@@ -36,6 +36,18 @@
   --accent-hover: light-dark(#17589f, #6ba6e8);
   --accent-edge: #4a90e2; /* decorative only: borders, grid lines, glow */
 
+  /*
+   * Text placed ON the accent, which is a different problem from the accent
+   * used AS text and was initially missed.
+   *
+   * White on the dark-mode accent (#4a90e2) is only 3.29:1 and fails AA for
+   * body-size text — Lighthouse caught it on the primary CTA. Dark text on
+   * that same blue is 5.29:1, so the brand colour is unchanged and only the
+   * label flips. In light mode the accent is darker (#1c6dc7) and white on it
+   * is 5.17:1, so white stays correct there.
+   */
+  --accent-on: light-dark(#ffffff, #1a1a1a);
+
   /* Lines */
   --border: light-dark(#dcdcdc, #2e2e2e);
   --border-strong: light-dark(#c4c4c4, #3d3d3d);
@@ -86,6 +98,7 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-edge: var(--accent-edge);
+  --color-accent-on: var(--accent-on);
 
   --color-line: var(--border);
   --color-line-strong: var(--border-strong);
